@@ -524,3 +524,53 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Individual Card Actions */
+.card-action-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+/* Need to make sure overlay isn't triggered if you hover on checkbox directly, but we let it be */
+.page-card:hover .card-action-overlay {
+  opacity: 1;
+}
+
+.mini-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mini-btn:hover {
+  background: var(--accent-primary);
+  border-color: var(--accent-hover);
+  transform: scale(1.15);
+}
+
+.mini-btn svg {
+  width: 16px;
+  height: 16px;
+  pointer-events: none; /* helps avoid target issues in JS */
+}
+
+.delete-overlay {
+  z-index: 5;
+}

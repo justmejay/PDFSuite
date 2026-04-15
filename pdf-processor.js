@@ -142,6 +142,41 @@ export class PDFProcessor {
     saveAs(blob, 'combined_output.pdf');
   }
 
+  // Exports all valid pages grouped by their original file into a ZIP.
+  async exportByFile() {
+    const zip = new JSZip();
+
+    for (let doc of this.documents) {
+      const buffer = await doc.file.arrayBuffer();
+      const currentDoc = await PDFDocument.load(buffer);
+      
+      const singlePdf = await PDFDocument.create();
+      let addedPages = 0;
+      
+      for (let p of doc.pages) {
+        if (p.isDeleted) continue;
+        
+        const [copiedPage] = await singlePdf.copyPages(currentDoc, [p.pageIndex - 1]);
+        
+        if (p.rotation !== 0) {
+          const currentRotation = copiedPage.getRotation().angle;
+          copiedPage.setRotation(degrees(currentRotation + p.rotation));
+        }
+        
+        singlePdf.addPage(copiedPage);
+        addedPages++;
+      }
+      
+      if (addedPages > 0) {
+        const pdfBytes = await singlePdf.save();
+        zip.file(`modified_${doc.fileName}`, pdfBytes);
+      }
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, 'modified_files.zip');
+  }
+
   // Exports every single valid page as a separate PDF, then ZIPs it.
   async exportBurst() {
     const zip = new JSZip();

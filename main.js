@@ -20,6 +20,7 @@ const pageCardTemplate = document.getElementById('page-card-template');
 const btnAddMore = document.getElementById('btn-add-more');
 const btnClearAll = document.getElementById('btn-clear-all');
 const btnExportOne = document.getElementById('btn-export-one');
+const btnExportByFile = document.getElementById('btn-export-by-file');
 const btnExportBurst = document.getElementById('btn-export-burst');
 const btnRotateLeft = document.getElementById('btn-rotate-left');
 const btnRotateRight = document.getElementById('btn-rotate-right');
@@ -120,6 +121,13 @@ function createPageCard(doc, page) {
 
   // Interactions
   card.addEventListener('click', (e) => {
+    const miniBtn = e.target.closest('.mini-btn');
+    if (miniBtn) {
+      e.stopPropagation();
+      performActionOnCard(card, miniBtn.dataset.action);
+      return;
+    }
+
     // If clicking directly on checkbox, let it bubble but handle selection state
     if (e.target.tagName !== 'INPUT') {
       checkbox.checked = !checkbox.checked;
@@ -183,34 +191,36 @@ btnRotateLeft.addEventListener('click', () => applyActionToSelected('rotate-left
 btnRotateRight.addEventListener('click', () => applyActionToSelected('rotate-right'));
 btnDelete.addEventListener('click', () => applyActionToSelected('toggle-delete'));
 
+function performActionOnCard(card, action) {
+  const docId = card.dataset.docId;
+  const pageIndex = parseInt(card.dataset.pageIndex, 10);
+  const canvas = card.querySelector('.page-canvas');
+  const deleteOverlay = card.querySelector('.delete-overlay');
+
+  if (action === 'rotate-left') {
+    const newRot = processor.rotatePage(docId, pageIndex, 'left');
+    canvas.style.transform = `rotate(${newRot}deg)`;
+  } 
+  else if (action === 'rotate-right') {
+    const newRot = processor.rotatePage(docId, pageIndex, 'right');
+    canvas.style.transform = `rotate(${newRot}deg)`;
+  }
+  else if (action === 'toggle-delete') {
+    const isDeleted = processor.togglePageDeletion(docId, pageIndex);
+    if (isDeleted) {
+      card.classList.add('deleted');
+      deleteOverlay.classList.remove('hidden');
+    } else {
+      card.classList.remove('deleted');
+      deleteOverlay.classList.add('hidden');
+    }
+  }
+}
+
 function applyActionToSelected(action) {
   selectedPages.forEach(pageId => {
     const card = document.querySelector(`.page-card[data-id="${pageId}"]`);
-    if (!card) return;
-    
-    const docId = card.dataset.docId;
-    const pageIndex = parseInt(card.dataset.pageIndex, 10);
-    const canvas = card.querySelector('.page-canvas');
-    const deleteOverlay = card.querySelector('.delete-overlay');
-
-    if (action === 'rotate-left') {
-      const newRot = processor.rotatePage(docId, pageIndex, 'left');
-      canvas.style.transform = `rotate(${newRot}deg)`;
-    } 
-    else if (action === 'rotate-right') {
-      const newRot = processor.rotatePage(docId, pageIndex, 'right');
-      canvas.style.transform = `rotate(${newRot}deg)`;
-    }
-    else if (action === 'toggle-delete') {
-      const isDeleted = processor.togglePageDeletion(docId, pageIndex);
-      if (isDeleted) {
-        card.classList.add('deleted');
-        deleteOverlay.classList.remove('hidden');
-      } else {
-        card.classList.remove('deleted');
-        deleteOverlay.classList.add('hidden');
-      }
-    }
+    if (card) performActionOnCard(card, action);
   });
 }
 
@@ -229,6 +239,18 @@ btnExportOne.addEventListener('click', async () => {
   } catch (error) {
     console.error(error);
     alert('Error exporting PDF: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+});
+
+btnExportByFile.addEventListener('click', async () => {
+  showLoading('Generating Zipped Documents...');
+  try {
+    await processor.exportByFile();
+  } catch (error) {
+    console.error(error);
+    alert('Error exporting ZIP: ' + error.message);
   } finally {
     hideLoading();
   }
