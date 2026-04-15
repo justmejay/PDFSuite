@@ -26,6 +26,8 @@ const btnRotateLeft = document.getElementById('btn-rotate-left');
 const btnRotateRight = document.getElementById('btn-rotate-right');
 const btnDelete = document.getElementById('btn-delete');
 const btnSelectAll = document.getElementById('btn-select-all');
+const btnToggleSize = document.getElementById('btn-toggle-size');
+const btnGridView = document.getElementById('btn-grid-view');
 
 // State
 let selectedPages = new Set(); // Stores string: `${docId}-${pageIndex}`
@@ -116,8 +118,12 @@ function createPageCard(doc, page) {
   badge.textContent = page.pageIndex;
   fileLabel.textContent = doc.fileName;
 
-  // Render canvas
-  processor.renderPageToCanvas(doc.id, page.pageIndex, canvas);
+  // Render canvas and determine orientation
+  processor.renderPageToCanvas(doc.id, page.pageIndex, canvas).then(viewport => {
+    if (viewport && viewport.width > viewport.height) {
+      card.classList.add('landscape');
+    }
+  }).catch(err => console.error(err));
 
   // Interactions
   card.addEventListener('click', (e) => {
@@ -186,6 +192,46 @@ btnSelectAll.addEventListener('click', () => {
   btnSelectAll.querySelector('span').textContent = allSelected ? 'Select All' : 'Deselect All';
 });
 
+let isLargePreview = false;
+btnToggleSize.addEventListener('click', () => {
+  isLargePreview = !isLargePreview;
+  if (isLargePreview) {
+    pagesContainer.classList.add('large-preview');
+    btnToggleSize.innerHTML = '<i data-lucide="zoom-out"></i>';
+    btnToggleSize.classList.add('active');
+  } else {
+    pagesContainer.classList.remove('large-preview');
+    btnToggleSize.innerHTML = '<i data-lucide="zoom-in"></i>';
+    btnToggleSize.classList.remove('active');
+  }
+  createIcons({
+    icons,
+    nameAttr: 'data-lucide',
+    attrs: { class: 'lucide-icon' }
+  });
+});
+
+let isGridView = true;
+btnGridView.addEventListener('click', () => {
+  isGridView = !isGridView;
+  if (isGridView) {
+    pagesContainer.classList.remove('list-preview');
+    btnGridView.innerHTML = '<i data-lucide="list"></i>';
+    btnGridView.title = 'List View';
+    btnGridView.classList.add('active');
+  } else {
+    pagesContainer.classList.add('list-preview');
+    btnGridView.innerHTML = '<i data-lucide="grid"></i>';
+    btnGridView.title = 'Grid View';
+    btnGridView.classList.remove('active');
+  }
+  createIcons({
+    icons,
+    nameAttr: 'data-lucide',
+    attrs: { class: 'lucide-icon' }
+  });
+});
+
 // Actions
 btnRotateLeft.addEventListener('click', () => applyActionToSelected('rotate-left'));
 btnRotateRight.addEventListener('click', () => applyActionToSelected('rotate-right'));
@@ -198,12 +244,30 @@ function performActionOnCard(card, action) {
   const deleteOverlay = card.querySelector('.delete-overlay');
 
   if (action === 'rotate-left') {
-    const newRot = processor.rotatePage(docId, pageIndex, 'left');
-    canvas.style.transform = `rotate(${newRot}deg)`;
+    processor.rotatePage(docId, pageIndex, 'left');
+    canvas.style.transform = 'rotate(-90deg) scale(0.85)';
+    setTimeout(() => {
+      processor.renderPageToCanvas(docId, pageIndex, canvas).then(vp => {
+        canvas.style.transition = 'none';
+        canvas.style.transform = 'none';
+        if (vp && vp.width > vp.height) card.classList.add('landscape');
+        else card.classList.remove('landscape');
+        setTimeout(() => canvas.style.transition = '', 30);
+      });
+    }, 300);
   } 
   else if (action === 'rotate-right') {
-    const newRot = processor.rotatePage(docId, pageIndex, 'right');
-    canvas.style.transform = `rotate(${newRot}deg)`;
+    processor.rotatePage(docId, pageIndex, 'right');
+    canvas.style.transform = 'rotate(90deg) scale(0.85)';
+    setTimeout(() => {
+      processor.renderPageToCanvas(docId, pageIndex, canvas).then(vp => {
+        canvas.style.transition = 'none';
+        canvas.style.transform = 'none';
+        if (vp && vp.width > vp.height) card.classList.add('landscape');
+        else card.classList.remove('landscape');
+        setTimeout(() => canvas.style.transition = '', 30);
+      });
+    }, 300);
   }
   else if (action === 'toggle-delete') {
     const isDeleted = processor.togglePageDeletion(docId, pageIndex);

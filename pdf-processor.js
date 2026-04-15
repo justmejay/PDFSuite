@@ -53,8 +53,9 @@ export class PDFProcessor {
     const doc = this.documents.find(d => d.id === docId);
     if (!doc) return;
 
+    const pageData = doc.pages.find(p => p.pageIndex === pageIndex);
     const page = await doc.pdfjsDoc.getPage(pageIndex);
-    const viewport = page.getViewport({ scale: 1.5 });
+    const viewport = page.getViewport({ scale: 1.5, rotation: page.rotate + (pageData ? pageData.rotation : 0) });
     
     // adjust canvas
     canvas.height = viewport.height;
@@ -67,6 +68,7 @@ export class PDFProcessor {
     };
 
     await page.render(renderContext).promise;
+    return viewport;
   }
 
   rotatePage(docId, pageIndex, direction) {

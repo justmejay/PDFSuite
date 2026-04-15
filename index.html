@@ -20,6 +20,27 @@
   </div>
 
   <div class="app-container">
+    <!-- Suite Navigation Menu -->
+    <nav class="suite-nav glass-panel">
+      <div class="brand-mini">
+        <i data-lucide="sparkles" class="brand-icon"></i>
+      </div>
+      <ul class="nav-links">
+        <li class="nav-item active">
+          <button class="nav-btn" title="Organize PDF">
+            <i data-lucide="layers"></i>
+            <span class="nav-label">Organize PDF</span>
+          </button>
+        </li>
+        <li class="nav-item disabled">
+          <button class="nav-btn" title="Coming Soon">
+            <i data-lucide="file-text"></i>
+            <span class="nav-label">Coming Soon</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
     <!-- Sidebar / Toolbar -->
     <aside class="sidebar glass-panel">
       <div class="brand">
@@ -50,7 +71,7 @@
         <div class="export-options">
           <button class="btn export-btn primary" id="btn-export-one">
             <i data-lucide="merge"></i>
-            <span>Save as One Document</span>
+            <span>Merge PDF</span>
           </button>
           <button class="btn export-btn primary" id="btn-export-by-file" style="background-color: var(--accent-hover);">
             <i data-lucide="file-archive"></i>
@@ -78,15 +99,20 @@
 
     <!-- Main Workspace -->
     <main class="workspace">
-      <header class="workspace-header">
-        <h2>Pages Workspace</h2>
-        <div class="view-controls">
-          <button class="btn" id="btn-select-all" style="padding: 0.5rem 0.75rem; font-size: 0.75rem;">
-            <i data-lucide="check-square"></i>
+      <header class="workspace-header" style="align-items: flex-start;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <h2>Pages Workspace</h2>
+          <button class="btn" id="btn-select-all" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; width: max-content; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
+            <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
             <span>Select All</span>
           </button>
-          <button class="icon-btn active" title="Grid View" id="btn-grid-view">
-            <i data-lucide="grid"></i>
+        </div>
+        <div class="view-controls">
+          <button class="icon-btn" title="Toggle Size" id="btn-toggle-size">
+            <i data-lucide="zoom-in"></i>
+          </button>
+          <button class="icon-btn active" title="List View" id="btn-grid-view">
+            <i data-lucide="list"></i>
           </button>
         </div>
       </header>
