@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Tools Suite</title>
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- Abstract animated background -->
+    <div class="bg-mesh">
+      <div class="gradient-sphere sphere-1"></div>
+      <div class="gradient-sphere sphere-2"></div>
+      <div class="gradient-sphere sphere-3"></div>
+    </div>
+
+    <div class="app-container">
+      <!-- Sidebar / Toolbar -->
+      <aside class="sidebar glass-panel">
+        <div class="brand">
+          <i data-lucide="layers" class="brand-icon"></i>
+          <h1>PDF Suite</h1>
+        </div>
+
+        <div class="toolbar-section hidden" id="selection-toolbar">
+          <p class="section-title">Selection Actions</p>
+          <div class="action-grid">
+            <button class="btn action-btn" id="btn-rotate-left" title="Rotate Left">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Left</span>
+            </button>
+            <button class="btn action-btn" id="btn-rotate-right" title="Rotate Right">
+              <i data-lucide="rotate-cw"></i>
+              <span>Right</span>
+            </button>
+            <button class="btn action-btn danger" id="btn-delete" title="Delete Selection">
+              <i data-lucide="trash-2"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar-section hidden" id="export-toolbar">
+          <p class="section-title">Export Options</p>
+          <div class="export-options">
+            <button class="btn export-btn primary" id="btn-export-one">
+              <i data-lucide="save"></i>
+              <span>Save Document</span>
+            </button>
+            <button class="btn export-btn" id="btn-export-burst">
+              <i data-lucide="split-square-horizontal"></i>
+              <span>Split Pages (ZIP)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar-section bottom">
+          <button class="btn action-btn" id="btn-add-more">
+            <i data-lucide="file-plus-2"></i>
+            <span>Add Files</span>
+          </button>
+          <button class="btn action-btn text-danger hidden" id="btn-clear-all">
+            <i data-lucide="x-circle"></i>
+            <span>Reset All</span>
+          </button>
+          <input type="file" id="file-input" multiple accept="application/pdf" class="hidden" />
+        </div>
+      </aside>
+
+      <!-- Main Workspace -->
+      <main class="workspace">
+        <header class="workspace-header">
+          <h2>Pages Workspace</h2>
+          <div class="view-controls">
+            <button class="btn" id="btn-select-all" style="padding: 0.5rem 0.75rem; font-size: 0.75rem;">
+              <i data-lucide="check-square"></i>
+              <span>Select All</span>
+            </button>
+            <button class="icon-btn active" title="Grid View" id="btn-grid-view">
+              <i data-lucide="grid"></i>
+            </button>
+          </div>
+        </header>
+
+        <div id="dropzone" class="dropzone active glass-panel">
+          <div class="dz-content">
+            <div class="dz-icon-wrap">
+              <i data-lucide="upload-cloud"></i>
+            </div>
+            <h3>Drag & Drop PDFs</h3>
+            <p>or click to browse files</p>
+          </div>
+        </div>
+
+        <div id="pages-container" class="pages-grid hidden">
+          <!-- Page cards will be generated here dynamically -->
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden glass-panel">
+          <div class="spinner"></div>
+          <p id="loading-text">Processing...</p>
+        </div>
+      </main>
+    </div>
+    
+    <!-- Template for a Page Card -->
+    <template id="page-card-template">
+      <div class="page-card">
+        <div class="page-card-header">
+          <label class="custom-checkbox">
+            <input type="checkbox" class="page-select-checkbox">
+            <span class="checkmark"></span>
+          </label>
+          <span class="page-number-badge">1</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas class="page-canvas"></canvas>
+          <div class="delete-overlay hidden">
+            <i data-lucide="trash-2"></i>
+          </div>
+        </div>
+        <div class="page-card-footer">
+          <span class="file-label">doc.pdf</span>
+        </div>
+      </div>
+    </template>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
