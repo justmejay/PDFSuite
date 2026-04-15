@@ -26,6 +26,8 @@ const btnRotateLeft = document.getElementById('btn-rotate-left');
 const btnRotateRight = document.getElementById('btn-rotate-right');
 const btnDelete = document.getElementById('btn-delete');
 const btnSelectAll = document.getElementById('btn-select-all');
+const btnSelectByPage = document.getElementById('btn-select-by-page');
+const inputPageNum = document.getElementById('input-page-num');
 const btnToggleSize = document.getElementById('btn-toggle-size');
 const btnGridView = document.getElementById('btn-grid-view');
 
@@ -206,6 +208,32 @@ btnSelectAll.addEventListener('click', () => {
   });
   
   btnSelectAll.querySelector('span').textContent = allSelected ? 'Select All' : 'Deselect All';
+});
+
+btnSelectByPage.addEventListener('click', () => {
+  const targetPage = parseInt(inputPageNum.value, 10);
+  if (!targetPage || targetPage < 1) return;
+
+  // Collect all cards matching that 1-based page position within each file
+  // pageIndex is 1-based (pdf.js), so page 2 means pageIndex === 2
+  const allCards = document.querySelectorAll('.page-card');
+  let matched = 0;
+
+  allCards.forEach(card => {
+    const pageIndex = parseInt(card.dataset.pageIndex, 10);
+    if (pageIndex === targetPage) {
+      matched++;
+      const checkbox = card.querySelector('.page-select-checkbox');
+      checkbox.checked = true;
+      toggleSelection(card.dataset.id, true, card);
+    }
+  });
+
+  if (matched === 0) {
+    // Flash the input red briefly to signal no results
+    inputPageNum.style.borderColor = '#ef4444';
+    setTimeout(() => inputPageNum.style.borderColor = '', 1000);
+  }
 });
 
 let isLargePreview = false;

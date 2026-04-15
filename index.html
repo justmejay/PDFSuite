@@ -102,10 +102,20 @@
       <header class="workspace-header" style="align-items: flex-start;">
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <h2>Pages Workspace</h2>
-          <button class="btn" id="btn-select-all" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; width: max-content; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
-            <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
-            <span>Select All</span>
-          </button>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn" id="btn-select-all" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; width: max-content; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
+              <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
+              <span>Select All</span>
+            </button>
+            <div class="page-select-by-num">
+              <span style="font-size: 0.75rem; color: var(--text-secondary); white-space:nowrap;">Select page</span>
+              <input type="number" id="input-page-num" min="1" placeholder="e.g. 2" class="page-num-input" />
+              <button class="btn" id="btn-select-by-page" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
+                <i data-lucide="layers" style="width: 14px; height: 14px;"></i>
+                <span>All Files</span>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="view-controls">
           <button class="icon-btn" title="Toggle Size" id="btn-toggle-size">

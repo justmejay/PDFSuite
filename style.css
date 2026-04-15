@@ -108,6 +108,38 @@ body {
   display: none !important;
 }
 
+/* Page-select-by-num row */
+.page-select-by-num {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.page-num-input {
+  width: 72px;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  /* hide spin arrows */
+  -moz-appearance: textfield;
+}
+
+.page-num-input:focus {
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.page-num-input::-webkit-outer-spin-button,
+.page-num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Suite Nav */
 .suite-nav {
   width: 80px;
