@@ -71,6 +71,64 @@ export class PDFProcessor {
     return viewport;
   }
 
+  async renderFullscreenPage(docId, pageIndex, canvas, textContainer, zoomMultiplier = 1.0) {
+    const doc = this.documents.find(d => d.id === docId);
+    if (!doc) return null;
+
+    const pageData = doc.pages.find(p => p.pageIndex === pageIndex);
+    const page = await doc.pdfjsDoc.getPage(pageIndex);
+    
+    const baseViewport = page.getViewport({ scale: 1.0 });
+    const screenHeight = window.innerHeight * 0.9;
+    const scale = screenHeight / baseViewport.height;
+    const finalScale = Math.min(Math.max(scale, 1.0), 4.0) * zoomMultiplier;
+    
+    const viewport = page.getViewport({ scale: finalScale, rotation: page.rotate + (pageData ? pageData.rotation : 0) });
+    
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    
+    textContainer.parentElement.style.width = `${viewport.width}px`;
+    textContainer.parentElement.style.height = `${viewport.height}px`;
+    
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    textContainer.innerHTML = '';
+    
+    try {
+      const textContent = await page.getTextContent();
+      
+      const applyTransform = (p1, p2) => [
+        p1[0] * p2[0] + p1[2] * p2[1],
+        p1[1] * p2[0] + p1[3] * p2[1],
+        p1[0] * p2[2] + p1[2] * p2[3],
+        p1[1] * p2[2] + p1[3] * p2[3],
+        p1[0] * p2[4] + p1[2] * p2[5] + p1[4],
+        p1[1] * p2[4] + p1[3] * p2[5] + p1[5]
+      ];
+
+      for (const item of textContent.items) {
+          const tx = applyTransform(viewport.transform, item.transform);
+          const fontHeight = Math.sqrt((tx[2] * tx[2]) + (tx[3] * tx[3]));
+          
+          const span = document.createElement('span');
+          span.textContent = item.str + (item.hasEOL ? ' ' : '');
+          span.style.left = `${tx[4]}px`;
+          span.style.top = `${tx[5] - fontHeight * 0.8}px`; 
+          span.style.fontSize = `${fontHeight}px`;
+          span.style.lineHeight = '1';
+          
+          textContainer.appendChild(span);
+      }
+    } catch (e) {
+      console.warn("Failed to render text layer", e);
+    }
+    
+    return viewport;
+  }
+
+
   rotatePage(docId, pageIndex, direction) {
     const doc = this.documents.find(d => d.id === docId);
     if (!doc) return;

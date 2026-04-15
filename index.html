@@ -139,6 +139,47 @@
     </main>
   </div>
 
+  <!-- Full Screen Modal -->
+  <div id="fullscreen-modal" class="fullscreen-modal hidden">
+    <div class="fs-header glass-panel">
+      <div class="fs-title-wrap">
+         <i data-lucide="file-text" class="text-secondary"></i>
+         <span id="fs-file-label" class="fs-file-label">doc.pdf - Page 1</span>
+      </div>
+      <button class="icon-btn" id="fs-btn-close" title="Close"><i data-lucide="x"></i></button>
+    </div>
+    
+    <div class="fs-workspace">
+      <button class="icon-btn fs-nav prev" id="fs-btn-prev" title="Previous Page"><i data-lucide="chevron-left"></i></button>
+      
+      <div id="fs-render-container" class="fs-render-container">
+        <canvas id="fs-canvas"></canvas>
+        <div id="fs-text-layer" class="fs-text-layer"></div>
+      </div>
+      
+      <button class="icon-btn fs-nav next" id="fs-btn-next" title="Next Page"><i data-lucide="chevron-right"></i></button>
+    </div>
+
+    <div class="fs-toolbar glass-panel">
+      <button class="btn" id="fs-btn-zoom-out" title="Zoom Out">
+        <i data-lucide="zoom-out"></i>
+      </button>
+      <button class="btn" id="fs-btn-zoom-in" title="Zoom In">
+        <i data-lucide="zoom-in"></i>
+      </button>
+      <div class="fs-divider"></div>
+      <button class="btn" id="fs-btn-rotate-left" title="Rotate Left">
+        <i data-lucide="rotate-ccw"></i>
+      </button>
+      <button class="btn" id="fs-btn-rotate-right" title="Rotate Right">
+        <i data-lucide="rotate-cw"></i>
+      </button>
+      <button class="btn danger" id="fs-btn-delete" title="Delete/Restore">
+        <i data-lucide="trash-2"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- Template for a Page Card -->
   <template id="page-card-template">
     <div class="page-card">
@@ -155,6 +196,8 @@
           <i data-lucide="trash-2"></i>
         </div>
         <div class="card-action-overlay">
+          <button class="mini-btn" title="View Full Screen" data-action="view-fullscreen"><i
+              data-lucide="maximize"></i></button>
           <button class="mini-btn" title="Rotate Left" data-action="rotate-left"><i
               data-lucide="rotate-ccw"></i></button>
           <button class="mini-btn" title="Delete/Restore" data-action="toggle-delete"><i

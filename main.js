@@ -29,8 +29,24 @@ const btnSelectAll = document.getElementById('btn-select-all');
 const btnToggleSize = document.getElementById('btn-toggle-size');
 const btnGridView = document.getElementById('btn-grid-view');
 
+const fsModal = document.getElementById('fullscreen-modal');
+const fsLabel = document.getElementById('fs-file-label');
+const fsCanvas = document.getElementById('fs-canvas');
+const fsTextLayer = document.getElementById('fs-text-layer');
+const fsBtnClose = document.getElementById('fs-btn-close');
+const fsBtnRotateLeft = document.getElementById('fs-btn-rotate-left');
+const fsBtnRotateRight = document.getElementById('fs-btn-rotate-right');
+const fsBtnDelete = document.getElementById('fs-btn-delete');
+const fsBtnZoomIn = document.getElementById('fs-btn-zoom-in');
+const fsBtnZoomOut = document.getElementById('fs-btn-zoom-out');
+const fsBtnPrev = document.getElementById('fs-btn-prev');
+const fsBtnNext = document.getElementById('fs-btn-next');
+
 // State
 let selectedPages = new Set(); // Stores string: `${docId}-${pageIndex}`
+let currentFsDocId = null;
+let currentFsPageIndex = null;
+let currentFsZoom = 1.0;
 
 // Drag & Drop
 dropzone.addEventListener('dragover', (e) => {
@@ -237,13 +253,139 @@ btnRotateLeft.addEventListener('click', () => applyActionToSelected('rotate-left
 btnRotateRight.addEventListener('click', () => applyActionToSelected('rotate-right'));
 btnDelete.addEventListener('click', () => applyActionToSelected('toggle-delete'));
 
+async function openFullscreen(docId, pageIndex) {
+  const doc = processor.documents.find(d => d.id === docId);
+  if (!doc) return;
+  
+  currentFsDocId = docId;
+  currentFsPageIndex = pageIndex;
+  currentFsZoom = 1.0;
+  
+  fsLabel.textContent = `${doc.fileName} - Page ${pageIndex}`;
+  fsModal.classList.remove('hidden');
+  
+  const isDeleted = doc.pages.find(p => p.pageIndex === pageIndex).isDeleted;
+  if (isDeleted) {
+      fsBtnDelete.innerHTML = '<i data-lucide="rotate-ccw"></i>';
+      fsBtnDelete.classList.remove('danger');
+  } else {
+      fsBtnDelete.innerHTML = '<i data-lucide="trash-2"></i>';
+      fsBtnDelete.classList.add('danger');
+  }
+  createIcons({ icons, nameAttr: 'data-lucide', attrs: { class: 'lucide-icon' } });
+  
+  await processor.renderFullscreenPage(docId, pageIndex, fsCanvas, fsTextLayer, currentFsZoom);
+  updateFullscreenNavButtons();
+}
+
+function getFlatPageList() {
+  const list = [];
+  processor.documents.forEach(doc => {
+    doc.pages.forEach(p => {
+      list.push({ docId: doc.id, pageIndex: p.pageIndex });
+    });
+  });
+  return list;
+}
+
+function updateFullscreenNavButtons() {
+    const list = getFlatPageList();
+    const idx = list.findIndex(item => item.docId === currentFsDocId && item.pageIndex === currentFsPageIndex);
+    fsBtnPrev.disabled = idx <= 0;
+    fsBtnNext.disabled = idx >= list.length - 1 || idx === -1;
+}
+
+fsBtnClose.addEventListener('click', () => {
+  fsModal.classList.add('hidden');
+  currentFsDocId = null;
+  currentFsPageIndex = null;
+});
+
+fsBtnZoomIn.addEventListener('click', () => {
+    currentFsZoom += 0.25;
+    if (currentFsZoom > 3.0) currentFsZoom = 3.0; // max zoom limit
+    processor.renderFullscreenPage(currentFsDocId, currentFsPageIndex, fsCanvas, fsTextLayer, currentFsZoom);
+});
+
+fsBtnZoomOut.addEventListener('click', () => {
+    currentFsZoom -= 0.25;
+    if (currentFsZoom < 0.25) currentFsZoom = 0.25;
+    processor.renderFullscreenPage(currentFsDocId, currentFsPageIndex, fsCanvas, fsTextLayer, currentFsZoom);
+});
+
+fsBtnPrev.addEventListener('click', () => {
+    const list = getFlatPageList();
+    const idx = list.findIndex(item => item.docId === currentFsDocId && item.pageIndex === currentFsPageIndex);
+    if (idx > 0) {
+        openFullscreen(list[idx - 1].docId, list[idx - 1].pageIndex);
+    }
+});
+
+fsBtnNext.addEventListener('click', () => {
+    const list = getFlatPageList();
+    const idx = list.findIndex(item => item.docId === currentFsDocId && item.pageIndex === currentFsPageIndex);
+    if (idx < list.length - 1 && idx !== -1) {
+        openFullscreen(list[idx + 1].docId, list[idx + 1].pageIndex);
+    }
+});
+
+fsBtnRotateLeft.addEventListener('click', () => {
+    processor.rotatePage(currentFsDocId, currentFsPageIndex, 'left');
+    processor.renderFullscreenPage(currentFsDocId, currentFsPageIndex, fsCanvas, fsTextLayer, currentFsZoom);
+    
+    const card = document.querySelector(`.page-card[data-doc-id="${currentFsDocId}"][data-page-index="${currentFsPageIndex}"]`);
+    if(card) {
+      const origCanvas = card.querySelector('.page-canvas');
+      processor.renderPageToCanvas(currentFsDocId, currentFsPageIndex, origCanvas).then(vp => {
+        if(vp && vp.width > vp.height) card.classList.add('landscape');
+        else card.classList.remove('landscape');
+      });
+    }
+});
+
+fsBtnRotateRight.addEventListener('click', () => {
+    processor.rotatePage(currentFsDocId, currentFsPageIndex, 'right');
+    processor.renderFullscreenPage(currentFsDocId, currentFsPageIndex, fsCanvas, fsTextLayer, currentFsZoom);
+    
+    const card = document.querySelector(`.page-card[data-doc-id="${currentFsDocId}"][data-page-index="${currentFsPageIndex}"]`);
+    if(card) {
+      const origCanvas = card.querySelector('.page-canvas');
+      processor.renderPageToCanvas(currentFsDocId, currentFsPageIndex, origCanvas).then(vp => {
+        if(vp && vp.width > vp.height) card.classList.add('landscape');
+        else card.classList.remove('landscape');
+      });
+    }
+});
+
+fsBtnDelete.addEventListener('click', () => {
+    const isDeleted = processor.togglePageDeletion(currentFsDocId, currentFsPageIndex);
+    const card = document.querySelector(`.page-card[data-doc-id="${currentFsDocId}"][data-page-index="${currentFsPageIndex}"]`);
+    if(card) {
+        if (isDeleted) {
+          card.classList.add('deleted');
+          card.querySelector('.delete-overlay').classList.remove('hidden');
+          fsBtnDelete.innerHTML = '<i data-lucide="rotate-ccw"></i>';
+          fsBtnDelete.classList.remove('danger');
+        } else {
+          card.classList.remove('deleted');
+          card.querySelector('.delete-overlay').classList.add('hidden');
+          fsBtnDelete.innerHTML = '<i data-lucide="trash-2"></i>';
+          fsBtnDelete.classList.add('danger');
+        }
+        createIcons({ icons, nameAttr: 'data-lucide', attrs: { class: 'lucide-icon' } });
+    }
+});
+
 function performActionOnCard(card, action) {
   const docId = card.dataset.docId;
   const pageIndex = parseInt(card.dataset.pageIndex, 10);
   const canvas = card.querySelector('.page-canvas');
   const deleteOverlay = card.querySelector('.delete-overlay');
 
-  if (action === 'rotate-left') {
+  if (action === 'view-fullscreen') {
+      openFullscreen(docId, pageIndex);
+  }
+  else if (action === 'rotate-left') {
     processor.rotatePage(docId, pageIndex, 'left');
     canvas.style.transform = 'rotate(-90deg) scale(0.85)';
     setTimeout(() => {
