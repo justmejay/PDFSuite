@@ -26,23 +26,23 @@
         <i data-lucide="sparkles" class="brand-icon"></i>
       </div>
       <ul class="nav-links">
-        <li class="nav-item active">
-          <button class="nav-btn" title="Organize PDF">
+        <li class="nav-item active" id="nav-item-organize">
+          <button class="nav-btn" id="nav-btn-organize" title="Organize PDF">
             <i data-lucide="layers"></i>
             <span class="nav-label">Organize PDF</span>
           </button>
         </li>
-        <li class="nav-item disabled">
-          <button class="nav-btn" title="Coming Soon">
-            <i data-lucide="file-text"></i>
-            <span class="nav-label">Coming Soon</span>
+        <li class="nav-item" id="nav-item-compress">
+          <button class="nav-btn" id="nav-btn-compress" title="Compress PDF">
+            <i data-lucide="minimize-2"></i>
+            <span class="nav-label">Compress PDF</span>
           </button>
         </li>
       </ul>
     </nav>
 
-    <!-- Sidebar / Toolbar -->
-    <aside class="sidebar glass-panel">
+    <!-- Sidebar / Toolbar (Organize PDF) -->
+    <aside class="sidebar glass-panel" id="sidebar-organize">
       <div class="brand">
         <i data-lucide="layers" class="brand-icon"></i>
         <h1>Nics Suite</h1>
@@ -97,8 +97,49 @@
       </div>
     </aside>
 
-    <!-- Main Workspace -->
-    <main class="workspace">
+    <!-- Sidebar (Compress PDF) -->
+    <aside class="sidebar glass-panel hidden" id="sidebar-compress">
+      <div class="brand">
+        <i data-lucide="minimize-2" class="brand-icon"></i>
+        <h1>Nics Suite</h1>
+      </div>
+
+      <div class="toolbar-section">
+        <p class="section-title">Compress PDF</p>
+        <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6;">
+          Reduce PDF file size without quality loss. Upload one or more PDFs, then compress them all at once.
+        </p>
+      </div>
+
+      <div class="toolbar-section hidden" id="compress-actions-toolbar">
+        <p class="section-title">Actions</p>
+        <div class="export-options">
+          <button class="btn primary" id="btn-compress-run">
+            <i data-lucide="zap"></i>
+            <span>Compress All</span>
+          </button>
+          <button class="btn" id="btn-compress-download-all" style="display:none;">
+            <i data-lucide="archive"></i>
+            <span>Download ZIP</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-section bottom">
+        <button class="btn action-btn" id="btn-compress-add">
+          <i data-lucide="file-plus-2"></i>
+          <span>Add Files</span>
+        </button>
+        <button class="btn action-btn text-danger hidden" id="btn-compress-clear">
+          <i data-lucide="x-circle"></i>
+          <span>Reset All</span>
+        </button>
+        <input type="file" id="compress-file-input" multiple accept="application/pdf" class="hidden" />
+      </div>
+    </aside>
+
+    <!-- Main Workspace (Organize PDF) -->
+    <main class="workspace" id="workspace-organize">
       <header class="workspace-header" style="align-items: flex-start;">
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           <h2>Pages Workspace</h2>
@@ -141,10 +182,35 @@
         <!-- Page cards will be generated here dynamically -->
       </div>
 
-      <!-- Loading Overlay -->
+      <!-- Loading Overlay (Organize) -->
       <div id="loading-overlay" class="loading-overlay hidden glass-panel">
         <div class="spinner"></div>
         <p id="loading-text">Processing...</p>
+      </div>
+    </main>
+
+    <!-- Main Workspace (Compress PDF) -->
+    <main class="workspace hidden" id="workspace-compress">
+      <header class="workspace-header">
+        <h2>Compress PDF</h2>
+      </header>
+
+      <div id="compress-dropzone" class="dropzone active glass-panel">
+        <div class="dz-content">
+          <div class="dz-icon-wrap">
+            <i data-lucide="minimize-2"></i>
+          </div>
+          <h3>Drag &amp; Drop PDFs</h3>
+          <p>or click to browse files</p>
+        </div>
+      </div>
+
+      <div id="compress-file-list" class="compress-file-list hidden"></div>
+
+      <!-- Loading Overlay (Compress) -->
+      <div id="compress-loading-overlay" class="loading-overlay hidden glass-panel">
+        <div class="spinner"></div>
+        <p id="compress-loading-text">Compressing...</p>
       </div>
     </main>
   </div>

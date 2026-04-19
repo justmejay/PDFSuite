@@ -12,6 +12,7 @@
     "vite": "^8.0.4"
   },
   "dependencies": {
+    "@quicktoolsone/pdf-compress": "^2.0.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "lucide": "^1.8.0",
