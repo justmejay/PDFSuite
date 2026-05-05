@@ -5,6 +5,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nicolle Suite</title>
+  <script>
+    window.__nicsUnhandledRejections = [];
+    window.__nicsConsoleError = window.console && window.console.error
+      ? window.console.error.bind(window.console)
+      : function () {};
+    window.addEventListener('unhandledrejection', function (event) {
+      window.__nicsUnhandledRejections.push(event.reason);
+      window.__nicsConsoleError('[Nics Suite] Unhandled promise rejection:', event.reason);
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var message = event.reason && event.reason.message ? event.reason.message : String(event.reason || 'Unknown error');
+      if (!message.includes("Cannot read properties of undefined (reading 'send')")) {
+        alert('Something went wrong: ' + message);
+      }
+    }, true);
+  </script>
   <!-- Modern typography -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
@@ -38,6 +54,12 @@
             <span class="nav-label">Compress PDF</span>
           </button>
         </li>
+        <li class="nav-item" id="nav-item-ms-downloader">
+          <button class="nav-btn" id="nav-btn-ms-downloader" title="MS Downloader">
+            <i data-lucide="cloud-download"></i>
+            <span class="nav-label">MS Downloader</span>
+          </button>
+        </li>
       </ul>
     </nav>
 
@@ -63,6 +85,10 @@
             <i data-lucide="trash-2"></i>
             <span>Delete</span>
           </button>
+          <button class="btn action-btn" id="btn-ocr-selected" title="Run OCR on Selection">
+            <i data-lucide="scan-text"></i>
+            <span>OCR</span>
+          </button>
         </div>
       </div>
 
@@ -80,6 +106,10 @@
           <button class="btn export-btn" id="btn-export-burst">
             <i data-lucide="split-square-horizontal"></i>
             <span>Save by page (ZIP)</span>
+          </button>
+          <button class="btn export-btn" id="btn-extract-billing">
+            <i data-lucide="table"></i>
+            <span>Extract Excel</span>
           </button>
         </div>
       </div>
@@ -138,6 +168,28 @@
       </div>
     </aside>
 
+    <!-- Sidebar (MS Downloader) -->
+    <aside class="sidebar glass-panel hidden" id="sidebar-ms-downloader">
+      <div class="brand">
+        <i data-lucide="cloud-download" class="brand-icon"></i>
+        <h1>Nics Suite</h1>
+      </div>
+
+      <div class="toolbar-section">
+        <p class="section-title">MS Downloader</p>
+        <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6;">
+          Save a stream or media URL directly as an MP4 using ffmpeg copy mode.
+        </p>
+      </div>
+
+      <div class="toolbar-section">
+        <p class="section-title">Command</p>
+        <div class="command-preview">
+          ffmpeg -i "URL" -codec copy "folder\video.mp4"
+        </div>
+      </div>
+    </aside>
+
     <!-- Main Workspace (Organize PDF) -->
     <main class="workspace" id="workspace-organize">
       <header class="workspace-header" style="align-items: flex-start;">
@@ -153,7 +205,7 @@
               <input type="number" id="input-page-num" min="1" placeholder="e.g. 2" class="page-num-input" />
               <button class="btn" id="btn-select-by-page" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
                 <i data-lucide="layers" style="width: 14px; height: 14px;"></i>
-                <span>All Files</span>
+                <span>Filter</span>
               </button>
             </div>
           </div>
@@ -213,6 +265,57 @@
         <p id="compress-loading-text">Compressing...</p>
       </div>
     </main>
+
+    <!-- Main Workspace (MS Downloader) -->
+    <main class="workspace hidden" id="workspace-ms-downloader">
+      <header class="workspace-header">
+        <h2>MS Downloader</h2>
+      </header>
+
+      <section class="ms-downloader-panel glass-panel">
+        <form class="ms-downloader-form" id="ms-downloader-form">
+          <label class="form-field">
+            <span>Input URL</span>
+            <input type="url" id="ms-download-url" placeholder="https://example.com/video.m3u8" required />
+          </label>
+
+          <label class="form-field">
+            <span>Video Name</span>
+            <input type="text" id="ms-download-name" placeholder="my-video" required />
+          </label>
+
+          <div class="form-field">
+            <span>Destination Folder</span>
+            <div class="folder-picker-row">
+              <input type="text" id="ms-download-folder" placeholder="Select a destination folder" readonly required />
+              <button class="btn" type="button" id="btn-ms-select-folder">
+                <i data-lucide="folder-open"></i>
+                <span>Browse</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ms-command-output" id="ms-command-output">
+            ffmpeg -i "Inputted URL" -codec copy "path\videoname.mp4"
+          </div>
+
+          <div class="ms-progress-wrap hidden" id="ms-progress-wrap">
+            <div class="ms-progress-label">
+              <span id="ms-progress-status">Preparing download...</span>
+              <span id="ms-progress-value">0%</span>
+            </div>
+            <div class="ms-progress-bar">
+              <div class="ms-progress-fill" id="ms-progress-fill"></div>
+            </div>
+          </div>
+
+          <button class="btn primary ms-run-btn" type="submit" id="btn-ms-run">
+            <i data-lucide="play"></i>
+            <span>Process Download</span>
+          </button>
+        </form>
+      </section>
+    </main>
   </div>
 
   <!-- Full Screen Modal -->
@@ -232,6 +335,16 @@
         <canvas id="fs-canvas"></canvas>
         <div id="fs-text-layer" class="fs-text-layer"></div>
       </div>
+      <aside id="fs-ocr-panel" class="fs-ocr-panel glass-panel hidden">
+        <div class="fs-ocr-header">
+          <span id="fs-ocr-status">OCR</span>
+          <div class="fs-ocr-actions">
+            <button class="icon-btn" id="fs-btn-copy-ocr" title="Copy OCR Text"><i data-lucide="copy"></i></button>
+            <button class="icon-btn" id="fs-btn-close-ocr" title="Close OCR"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <textarea id="fs-ocr-output" class="fs-ocr-output" readonly></textarea>
+      </aside>
       
       <button class="icon-btn fs-nav next" id="fs-btn-next" title="Next Page"><i data-lucide="chevron-right"></i></button>
     </div>
@@ -242,6 +355,10 @@
       </button>
       <button class="btn" id="fs-btn-zoom-in" title="Zoom In">
         <i data-lucide="zoom-in"></i>
+      </button>
+      <div class="fs-divider"></div>
+      <button class="btn" id="fs-btn-ocr" title="Run OCR">
+        <i data-lucide="scan-text"></i>
       </button>
       <div class="fs-divider"></div>
       <button class="btn" id="fs-btn-rotate-left" title="Rotate Left">

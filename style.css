@@ -543,6 +543,9 @@ body {
   gap: 0.75rem;
   transition: all var(--transition-fast);
   cursor: pointer;
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: 260px 365px;
 }
 
 .page-card.landscape {
@@ -816,6 +819,55 @@ body {
   display: block;
 }
 
+.fs-ocr-panel {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: min(420px, calc(100vw - 2.5rem));
+  max-height: calc(100% - 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  background: rgba(15, 23, 42, 0.9);
+  z-index: 130;
+}
+
+.fs-ocr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.fs-ocr-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fs-ocr-output {
+  width: 100%;
+  min-height: 260px;
+  max-height: min(52vh, 520px);
+  resize: vertical;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  padding: 0.85rem;
+  background: rgba(2, 6, 23, 0.86);
+  color: var(--text-primary);
+  font: 0.92rem/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  outline: none;
+}
+
+.fs-ocr-output:focus {
+  border-color: var(--accent-primary);
+}
+
 .fs-text-layer {
   position: absolute;
   top: 0; left: 0;
@@ -833,6 +885,12 @@ body {
   transform-origin: 0% 0%;
 }
 
+.fs-text-layer .ocr-text-span {
+  display: block;
+  line-height: 1;
+  overflow: hidden;
+}
+
 .fs-text-layer span::selection {
   background: rgba(99, 102, 241, 0.4);
 }
@@ -847,6 +905,7 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--glass-border);
+  z-index: 140;
 }
 
 .fs-divider {
@@ -1085,4 +1144,134 @@ body {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* MS Downloader Module */
+.command-preview,
+.ms-command-output {
+  padding: 0.85rem 1rem;
+  border-radius: var(--border-radius-sm);
+  background: rgba(15, 23, 42, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.ms-downloader-panel {
+  width: min(760px, calc(100% - 2rem));
+  margin: 1rem auto;
+  padding: 1.25rem;
+  border-radius: var(--border-radius-lg);
+}
+
+.ms-downloader-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.form-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.72rem 0.85rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.form-field input:focus {
+  border-color: rgba(99, 102, 241, 0.65);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.form-field input::placeholder {
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.folder-picker-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+.ms-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--border-radius-sm);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ms-progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ms-progress-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ms-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, var(--accent-primary), #ec4899);
+  transition: width 0.35s ease;
+}
+
+.ms-progress-wrap.is-active .ms-progress-fill {
+  background-size: 180% 100%;
+  animation: ms-progress-flow 1.3s linear infinite;
+}
+
+.ms-run-btn {
+  align-self: flex-start;
+  min-width: 190px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes ms-progress-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 180% 50%; }
+}
+
+@media (max-width: 720px) {
+  .folder-picker-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-run-btn {
+    align-self: stretch;
+  }
 }

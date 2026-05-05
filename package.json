@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@quicktoolsone/pdf-compress": "^2.0.0",
+    "@tesseract.js-data/eng": "^1.0.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "lucide": "^1.8.0",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.6.205"
+    "pdfjs-dist": "^5.6.205",
+    "tesseract.js": "^7.0.0"
   }
 }
